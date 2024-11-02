@@ -10,9 +10,9 @@ sealed interface MainViewState {
         val color: Int
     ) : MainViewState {
 
-        fun copy(drawingActions: List<DrawingAction>): Drawing {
+        fun copy(drawnPaths: List<DrawnPath>): Drawing {
             return copy(
-                frame = frame.copy(drawingActions = drawingActions)
+                frame = frame.copy(drawnPaths = drawnPaths)
             )
         }
     }

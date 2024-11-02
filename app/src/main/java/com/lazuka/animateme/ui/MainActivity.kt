@@ -25,14 +25,23 @@ class MainActivity : AppCompatActivity() {
         window.statusBarColor = ContextCompat.getColor(this, R.color.black)
         setContentView(binding.root)
 
-        initDrawingView()
+        initViews()
         observeViewModel()
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun initDrawingView() {
-        binding.drawingView.setOnTouchListener { _, event ->
-            viewModel.onDrawingTouch(event)
+    private fun initViews() = with(binding) {
+        drawingView.setOnTouchListener { _, event ->
+            viewModel.onDrawingTouched(event)
+            return@setOnTouchListener true
+        }
+
+        ivUndo.setOnClickListener {
+            viewModel.onUndoClicked()
+        }
+
+        ivRestore.setOnClickListener {
+            viewModel.onRestoreClicked()
         }
     }
 

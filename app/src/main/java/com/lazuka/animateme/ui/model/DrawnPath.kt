@@ -3,7 +3,7 @@ package com.lazuka.animateme.ui.model
 import android.graphics.Path
 import androidx.annotation.ColorInt
 
-data class DrawingAction(
+data class DrawnPath(
     val path: Path,
 
     @ColorInt
