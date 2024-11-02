@@ -5,8 +5,8 @@ import com.lazuka.animateme.R
 
 data class Frame(
     val position: Int,
-    val previousDrawingActions: List<DrawingAction>,
-    val drawingActions: List<DrawingAction> = emptyList()
+    val previousDrawnPaths: List<DrawnPath>,
+    val drawnPaths: List<DrawnPath> = emptyList()
 ) {
 
     fun getName(context: Context): String = context.getString(R.string.frame_name, position)

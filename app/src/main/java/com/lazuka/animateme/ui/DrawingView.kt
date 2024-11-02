@@ -5,7 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
-import com.lazuka.animateme.ui.model.DrawingAction
+import com.lazuka.animateme.ui.model.DrawnPath
 import com.lazuka.animateme.ui.model.MainViewState
 
 class DrawingView @JvmOverloads constructor(
@@ -15,7 +15,7 @@ class DrawingView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
     private val brush = Paint()
-    private val actionList = mutableListOf<DrawingAction>()
+    private val drawnPathList = mutableListOf<DrawnPath>()
 
     init {
         brush.isAntiAlias = true
@@ -25,7 +25,7 @@ class DrawingView @JvmOverloads constructor(
     }
 
     override fun onDraw(canvas: Canvas) {
-        actionList.forEach { (path, color) ->
+        drawnPathList.forEach { (path, color) ->
             brush.setColor(color)
             canvas.drawPath(path, brush)
         }
@@ -34,8 +34,8 @@ class DrawingView @JvmOverloads constructor(
     fun setState(state: MainViewState) {
         when (state) {
             is MainViewState.Drawing -> {
-                actionList.clear()
-                actionList.addAll(state.frame.drawingActions)
+                drawnPathList.clear()
+                drawnPathList.addAll(state.frame.drawnPaths)
                 invalidate()
             }
 
