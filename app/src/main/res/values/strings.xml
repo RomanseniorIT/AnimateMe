@@ -12,4 +12,5 @@
     <string name="eraser">Eraser</string>
     <string name="tools">Tools</string>
     <string name="colors">Colors</string>
+    <string name="frame_name">Frame %d</string>
 </resources>
