@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:paddingHorizontal="16dp"
+    android:paddingTop="16dp"
+    tools:context=".ui.MainActivity">
+
+    <ImageView
+        android:id="@+id/ivUndo"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:contentDescription="@string/undo_last_action"
+        android:src="@drawable/ic_arrow_left"
+        app:layout_constraintBottom_toBottomOf="@id/ivRestore"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/ivRestore" />
+
+    <ImageView
+        android:id="@+id/ivRestore"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="8dp"
+        android:contentDescription="@string/restore_last_action"
+        android:src="@drawable/ic_arrow_right"
+        app:layout_constraintBottom_toBottomOf="@id/ivDeleteFrame"
+        app:layout_constraintStart_toEndOf="@id/ivUndo"
+        app:layout_constraintTop_toTopOf="@id/ivDeleteFrame" />
+
+    <ImageView
+        android:id="@+id/ivDeleteFrame"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:contentDescription="@string/delete_frame"
+        android:src="@drawable/ic_bin"
+        app:layout_constraintEnd_toStartOf="@id/ivCreateFrame"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@id/ivRestore"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/ivCreateFrame"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginHorizontal="16dp"
+        android:contentDescription="@string/create_frame"
+        android:src="@drawable/ic_create_frame"
+        app:layout_constraintEnd_toStartOf="@id/ivLayers"
+        app:layout_constraintStart_toEndOf="@id/ivDeleteFrame"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/ivLayers"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:contentDescription="@string/show_frame_list"
+        android:src="@drawable/ic_layers"
+        app:layout_constraintEnd_toStartOf="@id/ivStop"
+        app:layout_constraintStart_toEndOf="@id/ivCreateFrame"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/ivStop"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginEnd="16dp"
+        android:contentDescription="@string/stop"
+        android:src="@drawable/ic_stop"
+        app:layout_constraintEnd_toStartOf="@id/ivPlay"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/ivPlay"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:contentDescription="@string/play"
+        android:src="@drawable/ic_play"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.lazuka.animateme.ui.DrawingView
+        android:id="@+id/drawingView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="22dp"
+        android:background="@drawable/ic_paper"
+        app:layout_constraintBottom_toTopOf="@id/rgTabBar"
+        app:layout_constraintTop_toBottomOf="@id/ivPlay" />
+
+    <RadioGroup
+        android:id="@+id/rgTabBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <RadioButton
+            android:id="@+id/rbPencil"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginHorizontal="8dp"
+            android:button="@drawable/ic_pencil"
+            android:buttonTint="@color/selective_button_color"
+            android:contentDescription="@string/pencil" />
+
+        <RadioButton
+            android:id="@+id/rbSome"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginHorizontal="8dp"
+            android:button="@drawable/ic_brush"
+            android:buttonTint="@color/selective_button_color"
+            android:contentDescription="@string/pencil" />
+
+        <RadioButton
+            android:id="@+id/rbEraser"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginHorizontal="8dp"
+            android:button="@drawable/ic_eraser"
+            android:buttonTint="@color/selective_button_color"
+            android:contentDescription="@string/eraser" />
+
+        <RadioButton
+            android:id="@+id/rbTools"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginHorizontal="8dp"
+            android:button="@drawable/ic_tools"
+            android:buttonTint="@color/selective_button_color"
+            android:contentDescription="@string/tools" />
+
+        <RadioButton
+            android:id="@+id/rbColor"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginHorizontal="8dp"
+            android:background="@drawable/ic_blue_color"
+            android:button="@null"
+            android:contentDescription="@string/tools" />
+    </RadioGroup>
+</androidx.constraintlayout.widget.ConstraintLayout>
