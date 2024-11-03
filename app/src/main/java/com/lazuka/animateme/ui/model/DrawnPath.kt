@@ -5,9 +5,9 @@ import androidx.annotation.ColorInt
 
 data class DrawnPath(
     val path: Path,
-
     @ColorInt
-    val color: Int
+    val color: Int,
+    val alpha: Int = 255
 ) {
 
     // This is necessary for equals to work correctly with Path
