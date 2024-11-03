@@ -13,4 +13,8 @@ sealed interface ViewAction {
     data object FrameDeletionAction : ViewAction
 
     data object FrameCreationAction : ViewAction
+
+    data object PlayAction : ViewAction
+
+    data object StopAction : ViewAction
 }

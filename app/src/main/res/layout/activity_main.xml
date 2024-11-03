@@ -146,4 +146,10 @@
             android:button="@null"
             android:contentDescription="@string/tools" />
     </RadioGroup>
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/groupEditingButtons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="ivUndo, ivRestore, ivDeleteFrame, ivCreateFrame, ivFrameList, rgTabBar" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.isInvisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -57,12 +58,28 @@ class MainActivity : AppCompatActivity() {
         ivFrameList.setOnClickListener {
             showFrameListPopup()
         }
+
+        ivPlay.setOnClickListener {
+            viewModel.onPlayClicked()
+        }
+
+        ivStop.setOnClickListener {
+            viewModel.onStopClicked()
+        }
     }
 
     private fun observeViewModel() = with(viewModel) {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 drawingStateFlow.collectLatest(binding.drawingView::setState)
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                editingButtonsInvisibleFlow.collectLatest { isInvisible ->
+                    binding.groupEditingButtons.isInvisible = isInvisible
+                }
             }
         }
     }
