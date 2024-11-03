@@ -10,6 +10,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.lazuka.animateme.R
 import com.lazuka.animateme.databinding.ActivityMainBinding
+import com.lazuka.animateme.databinding.PopupFrameListBinding
+import com.lazuka.animateme.ui.frame_list.FrameListPopupWindow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -43,13 +45,33 @@ class MainActivity : AppCompatActivity() {
         ivRestore.setOnClickListener {
             viewModel.onRestoreClicked()
         }
+
+        ivDeleteFrame.setOnClickListener {
+            viewModel.onDeleteFrameClicked()
+        }
+
+        ivCreateFrame.setOnClickListener {
+            viewModel.onCreateFrameClicked()
+        }
+
+        ivFrameList.setOnClickListener {
+            showFrameListPopup()
+        }
     }
 
     private fun observeViewModel() = with(viewModel) {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewStateFlow.collectLatest(binding.drawingView::setState)
+                drawingStateFlow.collectLatest(binding.drawingView::setState)
             }
         }
+    }
+
+    private fun showFrameListPopup() {
+        val binding = PopupFrameListBinding.inflate(layoutInflater)
+        val items = viewModel.getDisplayFrames(this)
+        val popup = FrameListPopupWindow(binding, items)
+        val margin = resources.getDimensionPixelSize(R.dimen.space)
+        popup.showAsDropDown(this.binding.ivFrameList, 0, margin)
     }
 }

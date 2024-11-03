@@ -6,7 +6,7 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
 import com.lazuka.animateme.ui.model.DrawnPath
-import com.lazuka.animateme.ui.model.MainViewState
+import com.lazuka.animateme.ui.model.DrawingViewState
 
 class DrawingView @JvmOverloads constructor(
     context: Context,
@@ -25,23 +25,26 @@ class DrawingView @JvmOverloads constructor(
     }
 
     override fun onDraw(canvas: Canvas) {
-        drawnPathList.forEach { (path, color) ->
-            brush.setColor(color)
+        drawnPathList.forEach { (path, color, alpha) ->
+            brush.color = color
+            brush.alpha = alpha
             canvas.drawPath(path, brush)
         }
     }
 
-    fun setState(state: MainViewState) {
+    fun setState(state: DrawingViewState) {
         when (state) {
-            is MainViewState.Drawing -> {
+            is DrawingViewState.Editing -> {
                 drawnPathList.clear()
                 drawnPathList.addAll(state.frame.drawnPaths)
-                invalidate()
+                drawnPathList.addAll(state.frame.previousDrawnPaths)
             }
 
-            is MainViewState.Animating -> {
-                // TODO("Implement animating state")
+            is DrawingViewState.Display -> {
+                drawnPathList.clear()
+                drawnPathList.addAll(state.drawnPaths)
             }
         }
+        invalidate()
     }
 }

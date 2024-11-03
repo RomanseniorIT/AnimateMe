@@ -7,8 +7,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/black"
-    android:paddingHorizontal="16dp"
-    android:paddingTop="16dp"
+    android:paddingHorizontal="@dimen/space"
+    android:paddingTop="@dimen/space"
     tools:context=".ui.MainActivity">
 
     <ImageView
@@ -25,7 +25,7 @@
         android:id="@+id/ivRestore"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="@dimen/space_half"
         android:contentDescription="@string/restore_last_action"
         android:src="@drawable/ic_arrow_right"
         app:layout_constraintBottom_toBottomOf="@id/ivDeleteFrame"
@@ -47,19 +47,19 @@
         android:id="@+id/ivCreateFrame"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:layout_marginHorizontal="16dp"
+        android:layout_marginHorizontal="@dimen/space"
         android:contentDescription="@string/create_frame"
         android:src="@drawable/ic_create_frame"
-        app:layout_constraintEnd_toStartOf="@id/ivLayers"
+        app:layout_constraintEnd_toStartOf="@id/ivFrameList"
         app:layout_constraintStart_toEndOf="@id/ivDeleteFrame"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/ivLayers"
+        android:id="@+id/ivFrameList"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:contentDescription="@string/show_frame_list"
-        android:src="@drawable/ic_layers"
+        android:src="@drawable/ic_frames"
         app:layout_constraintEnd_toStartOf="@id/ivStop"
         app:layout_constraintStart_toEndOf="@id/ivCreateFrame"
         app:layout_constraintTop_toTopOf="parent" />
@@ -68,7 +68,7 @@
         android:id="@+id/ivStop"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="@dimen/space"
         android:contentDescription="@string/stop"
         android:src="@drawable/ic_stop"
         app:layout_constraintEnd_toStartOf="@id/ivPlay"
@@ -87,8 +87,8 @@
         android:id="@+id/drawingView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginBottom="22dp"
+        android:layout_marginTop="@dimen/space_double"
+        android:layout_marginBottom="@dimen/space_22"
         android:background="@drawable/ic_paper"
         app:layout_constraintBottom_toTopOf="@id/rgTabBar"
         app:layout_constraintTop_toBottomOf="@id/ivPlay" />
@@ -105,7 +105,7 @@
             android:id="@+id/rbPencil"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_marginHorizontal="8dp"
+            android:layout_marginHorizontal="@dimen/space_half"
             android:button="@drawable/ic_pencil"
             android:buttonTint="@color/selective_button_color"
             android:contentDescription="@string/pencil" />
@@ -114,7 +114,7 @@
             android:id="@+id/rbSome"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_marginHorizontal="8dp"
+            android:layout_marginHorizontal="@dimen/space_half"
             android:button="@drawable/ic_brush"
             android:buttonTint="@color/selective_button_color"
             android:contentDescription="@string/pencil" />
@@ -123,7 +123,7 @@
             android:id="@+id/rbEraser"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_marginHorizontal="8dp"
+            android:layout_marginHorizontal="@dimen/space_half"
             android:button="@drawable/ic_eraser"
             android:buttonTint="@color/selective_button_color"
             android:contentDescription="@string/eraser" />
@@ -132,7 +132,7 @@
             android:id="@+id/rbTools"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_marginHorizontal="8dp"
+            android:layout_marginHorizontal="@dimen/space_half"
             android:button="@drawable/ic_tools"
             android:buttonTint="@color/selective_button_color"
             android:contentDescription="@string/tools" />
@@ -141,7 +141,7 @@
             android:id="@+id/rbColor"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_marginHorizontal="8dp"
+            android:layout_marginHorizontal="@dimen/space_half"
             android:background="@drawable/ic_blue_color"
             android:button="@null"
             android:contentDescription="@string/tools" />

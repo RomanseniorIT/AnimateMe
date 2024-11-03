@@ -8,5 +8,9 @@ sealed interface ViewAction {
 
     data object UndoAction : ViewAction
 
-    data object RestoreAction: ViewAction
+    data object RestoreAction : ViewAction
+
+    data object FrameDeletionAction : ViewAction
+
+    data object FrameCreationAction : ViewAction
 }
