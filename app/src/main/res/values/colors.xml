@@ -8,8 +8,9 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="blue">#1976D2</color>
+    <color name="red">#FF3D00</color>
 
     <color name="selected_color">#A8DB10</color>
     <color name="popup_border_color">#29555454</color>
-    <color name="popup_background_color">#7DFFFFFF</color>
+    <color name="popup_background_color">#7D000000</color>
 </resources>

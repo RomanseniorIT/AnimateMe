@@ -1,4 +1,4 @@
-package com.lazuka.animateme.ui.frame_list.adapter
+package com.lazuka.animateme.popup.frame_list.adapter
 
 import android.graphics.Rect
 import android.view.View

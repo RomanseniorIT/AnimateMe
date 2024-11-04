@@ -1,4 +1,4 @@
-package com.lazuka.animateme.ui.model
+package com.lazuka.animateme.model
 
 import androidx.annotation.ColorInt
 

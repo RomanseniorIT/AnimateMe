@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_popup"
+    android:orientation="horizontal"
+    android:padding="@dimen/space">
+
+    <ImageView
+        android:id="@+id/ivWhite"
+        android:layout_width="@dimen/color_icon_size"
+        android:layout_height="@dimen/color_icon_size"
+        android:contentDescription="@string/white"
+        android:src="@drawable/ic_white_color" />
+
+    <ImageView
+        android:id="@+id/ivRed"
+        android:layout_width="@dimen/color_icon_size"
+        android:layout_height="@dimen/color_icon_size"
+        android:layout_marginStart="@dimen/space"
+        android:contentDescription="@string/red"
+        android:src="@drawable/ic_red_color" />
+
+    <ImageView
+        android:id="@+id/ivBlack"
+        android:layout_width="@dimen/color_icon_size"
+        android:layout_height="@dimen/color_icon_size"
+        android:layout_marginStart="@dimen/space"
+        android:contentDescription="@string/black"
+        android:src="@drawable/ic_black_color" />
+
+    <ImageView
+        android:id="@+id/ivBlue"
+        android:layout_width="@dimen/color_icon_size"
+        android:layout_height="@dimen/color_icon_size"
+        android:layout_marginStart="@dimen/space"
+        android:contentDescription="@string/blue"
+        android:src="@drawable/ic_blue_color" />
+</LinearLayout>

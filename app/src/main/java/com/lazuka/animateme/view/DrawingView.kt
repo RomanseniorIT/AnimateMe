@@ -1,11 +1,11 @@
-package com.lazuka.animateme.ui
+package com.lazuka.animateme.view
 
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
-import com.lazuka.animateme.ui.model.DrawnPath
+import com.lazuka.animateme.model.DrawnPath
 
 class DrawingView @JvmOverloads constructor(
     context: Context,

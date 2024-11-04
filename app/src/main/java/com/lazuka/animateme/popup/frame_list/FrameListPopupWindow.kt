@@ -1,11 +1,11 @@
-package com.lazuka.animateme.ui.frame_list
+package com.lazuka.animateme.popup.frame_list
 
 import android.widget.LinearLayout
 import android.widget.PopupWindow
 import com.lazuka.animateme.R
 import com.lazuka.animateme.databinding.PopupFrameListBinding
-import com.lazuka.animateme.ui.frame_list.adapter.FrameListAdapter
-import com.lazuka.animateme.ui.frame_list.adapter.TopSpaceItemDecoration
+import com.lazuka.animateme.popup.frame_list.adapter.FrameListAdapter
+import com.lazuka.animateme.popup.frame_list.adapter.TopSpaceItemDecoration
 
 class FrameListPopupWindow(
     binding: PopupFrameListBinding,
