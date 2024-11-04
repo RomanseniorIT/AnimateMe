@@ -15,7 +15,7 @@ class FigureListPopupWindow(
     true
 ) {
 
-    private var selectedTool = ToolsState.CLEARED
+    private var selectedTool = ToolsState.INITIAL
 
     init {
         with(binding) {

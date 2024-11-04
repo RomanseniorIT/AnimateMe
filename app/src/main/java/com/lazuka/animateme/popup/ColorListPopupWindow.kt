@@ -18,7 +18,7 @@ class ColorListPopupWindow(
     true
 ) {
 
-    private var selectedColorTool = ToolsState.CLEARED
+    private var selectedColorTool = ToolsState.INITIAL
     private var selectedColor = Color.TRANSPARENT
 
     init {
