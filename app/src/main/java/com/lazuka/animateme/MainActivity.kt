@@ -68,12 +68,20 @@ class MainActivity : AppCompatActivity() {
             viewModel.onRestoreClicked()
         }
 
+        ivDeleteAll.setOnClickListener {
+            viewModel.onDeleteAllFramesClicked()
+        }
+
         ivDeleteFrame.setOnClickListener {
             viewModel.onDeleteFrameClicked()
         }
 
         ivCreateFrame.setOnClickListener {
             viewModel.onCreateFrameClicked()
+        }
+
+        ivCopyFrame.setOnClickListener {
+            viewModel.onCopyFrameClicked()
         }
 
         ivFrameList.setOnClickListener {

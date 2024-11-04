@@ -76,6 +76,8 @@ class MainViewModel(
                 is UserAction.PlayAction -> processPlayAction()
                 is UserAction.StopAction -> processStopAction()
                 is UserAction.ColorAction -> processColorAction(action.color, action.tool)
+                is UserAction.FrameCopyAction -> processFrameCopyAction()
+                is UserAction.AllFramesDeletion -> processAllFramesDeletionAction()
             }
         }
         .onEach { state -> if (!state.isAnimating) frameList[frameList.lastIndex] = state }
@@ -262,6 +264,30 @@ class MainViewModel(
         return flowOf(newState)
     }
 
+    private suspend fun processFrameCopyAction(): Flow<MainViewState> {
+        _loadingFlow.emit(true)
+
+        val state = viewStateFlow.value
+        return withContext(Dispatchers.IO) {
+            val newState = state.copy(
+                previousDrawnPaths = state.drawnPaths.map { it.copy(alpha = PREVIOUS_FRAME_ALPHA) },
+                isPlayEnabled = true
+            )
+
+            frameList.add(newState)
+
+            flowOf(frameList.last()).onEach { _loadingFlow.emit(false) }
+        }
+    }
+
+    private fun processAllFramesDeletionAction(): Flow<MainViewState> {
+        val oldState = viewStateFlow.value
+        frameList.clear()
+        frameList.add(oldState.copy(previousDrawnPaths = emptyList(), drawnPaths = emptyList(), isPlayEnabled = false))
+
+        return flowOf(frameList.first())
+    }
+
     private suspend fun getDisplayFrames(): List<String> = withContext(Dispatchers.IO) {
         frameList.indices.map { position -> String.format(frameString, position + 1) }
     }
@@ -284,6 +310,14 @@ class MainViewModel(
 
     fun onCreateFrameClicked() {
         userActionFlow.tryEmit(UserAction.FrameCreationAction)
+    }
+
+    fun onCopyFrameClicked() {
+        userActionFlow.tryEmit(UserAction.FrameCopyAction)
+    }
+
+    fun onDeleteAllFramesClicked() {
+        userActionFlow.tryEmit(UserAction.AllFramesDeletion)
     }
 
     fun onPlayClicked() {

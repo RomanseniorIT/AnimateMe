@@ -20,4 +20,8 @@ sealed interface UserAction {
     data object StopAction : UserAction
 
     data class ColorAction(val tool: ToolsState, @ColorInt val color: Int) : UserAction
+
+    data object FrameCopyAction : UserAction
+
+    data object AllFramesDeletion : UserAction
 }
