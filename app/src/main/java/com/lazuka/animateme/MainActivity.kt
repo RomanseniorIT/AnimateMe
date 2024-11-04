@@ -9,9 +9,11 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewmodel.MutableCreationExtras
 import com.lazuka.animateme.databinding.ActivityMainBinding
 import com.lazuka.animateme.databinding.PopupColorListBinding
 import com.lazuka.animateme.databinding.PopupFigureListBinding
@@ -29,7 +31,17 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private val viewModel: MainViewModel by viewModels()
+    private val viewModel: MainViewModel by viewModels(
+        extrasProducer = {
+            MutableCreationExtras().apply {
+                val initialColor = ContextCompat.getColor(this@MainActivity, R.color.blue)
+                val frameString = getString(R.string.frame_name)
+                set(MainViewModel.INITIAL_COLOR_KEY, initialColor)
+                set(MainViewModel.FRAME_STRING_KEY, frameString)
+            }
+        },
+        factoryProducer = { MainViewModel.Factory }
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,7 +77,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         ivFrameList.setOnClickListener {
-            showFrameListPopup()
+            viewModel.onShowFrameListClicked()
         }
 
         ivPlay.setOnClickListener {
@@ -84,14 +96,6 @@ class MainActivity : AppCompatActivity() {
                 rbColor.id -> viewModel.onToolsClicked(ToolsState.COLORS)
             }
         }
-
-        rbTools.setOnClickListener {
-            if (rbTools.isChecked) viewModel.onToolsClicked(ToolsState.TOOLS)
-        }
-
-        rbColor.setOnClickListener {
-            if (rbColor.isChecked) viewModel.onToolsClicked(ToolsState.COLORS)
-        }
     }
 
     private fun observeViewModel() = with(viewModel) {
@@ -100,10 +104,16 @@ class MainActivity : AppCompatActivity() {
                 viewStateFlow.collectLatest(::setState)
             }
         }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                showFrameListFlow.collectLatest(::showFrameListPopup)
+            }
+        }
+
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                clearToolsFlow.collectLatest { binding.rgTabBar.clearCheck() }
+                clearToolsFlow.collectLatest { binding.rbPencil.isChecked = true }
             }
         }
 
@@ -130,6 +140,12 @@ class MainActivity : AppCompatActivity() {
                 colorsButtonFlow.collectLatest(::setColorsButton)
             }
         }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                loadingFlow.collectLatest { loading -> binding.progressBar.isVisible = loading}
+            }
+        }
     }
 
     private fun setState(state: MainViewState) = with(binding) {
@@ -138,9 +154,8 @@ class MainActivity : AppCompatActivity() {
         groupEditingButtons.isInvisible = state.isAnimating
     }
 
-    private fun showFrameListPopup() {
+    private fun showFrameListPopup(items: List<String>) {
         val binding = PopupFrameListBinding.inflate(layoutInflater)
-        val items = viewModel.getDisplayFrames(this)
         val popup = FrameListPopupWindow(binding, items)
         val margin = resources.getDimensionPixelSize(R.dimen.space_double)
         popup.showAsDropDown(this.binding.ivFrameList, 0, margin)

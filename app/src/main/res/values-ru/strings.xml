@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AnimateMe</string>
+
+    <string name="restore_last_action">Восстановить действие</string>
+    <string name="undo_last_action">Отменить действие</string>
+    <string name="delete_frame">Удалить кадр</string>
+    <string name="create_frame">Создать кадр</string>
+    <string name="show_frame_list">Отобразить список кадров</string>
+    <string name="stop">Стоп</string>
+    <string name="play">Старт</string>
+    <string name="pencil">Карандаш</string>
+    <string name="eraser">Ластик</string>
+    <string name="tools">Фигуры</string>
+    <string name="colors">Цвета</string>
+    <string name="frame_name">Кадр %d</string>
+    <string name="rectangle">Прямоугольник</string>
+    <string name="circle">Круг</string>
+    <string name="line">Линия</string>
+    <string name="white">Белый</string>
+    <string name="red">Красный</string>
+    <string name="black">Черный</string>
+    <string name="blue">Синий</string>
+</resources>

@@ -7,8 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/black"
-    android:paddingHorizontal="@dimen/space"
-    android:paddingTop="@dimen/space"
+    android:padding="@dimen/space"
     tools:context=".MainActivity">
 
     <ImageView
@@ -120,15 +119,6 @@
             android:contentDescription="@string/pencil" />
 
         <RadioButton
-            android:id="@+id/rbSome"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginHorizontal="@dimen/space_half"
-            android:button="@drawable/ic_brush"
-            android:buttonTint="@color/selective_button_color"
-            android:contentDescription="@string/pencil" />
-
-        <RadioButton
             android:id="@+id/rbEraser"
             android:layout_width="32dp"
             android:layout_height="32dp"
@@ -161,4 +151,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:constraint_referenced_ids="ivUndo, ivRestore, ivDeleteFrame, ivCreateFrame, ivFrameList, rgTabBar" />
+
+    <FrameLayout
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/selected_color"
+            android:indeterminateTintMode="src_atop" />
+    </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

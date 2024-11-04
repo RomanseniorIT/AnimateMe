@@ -1,6 +1,5 @@
 package com.lazuka.animateme
 
-import android.content.Context
 import android.graphics.Color
 import android.graphics.Path
 import android.graphics.PorterDuff
@@ -8,13 +7,19 @@ import android.graphics.PorterDuffXfermode
 import android.view.MotionEvent
 import androidx.annotation.ColorInt
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.lazuka.animateme.model.DrawnPath
 import com.lazuka.animateme.model.MainViewState
 import com.lazuka.animateme.model.ToolsState
 import com.lazuka.animateme.model.UserAction
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -28,33 +33,31 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.withContext
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-class MainViewModel : ViewModel() {
+class MainViewModel(
+    @ColorInt private val initialColor: Int,
+    private val frameString: String
+) : ViewModel() {
 
-    companion object {
-        private const val FIRST_FRAME_POSITION = 0
-        private const val AVAILABLE_TOUCHES_AMOUNT = 1
-        private const val PREVIOUS_FRAME_ALPHA = 100
-        private const val FRAME_DELAY = 500L
-    }
-
-    private val toolsStateFlow = MutableStateFlow(ToolsState.CLEARED)
-    val clearToolsFlow = toolsStateFlow.filter { tool -> tool == ToolsState.CLEARED }
+    private val toolsStateFlow = MutableStateFlow(ToolsState.INITIAL)
+    val clearToolsFlow = toolsStateFlow.filter { tool -> tool == ToolsState.INITIAL }
     val showToolsPopupFlow = toolsStateFlow.filter { tool -> tool == ToolsState.TOOLS }
-    val toolsButtonFlow = toolsStateFlow.filter { tool -> tool != ToolsState.CLEARED }
+    val toolsButtonFlow = toolsStateFlow.filter { tool -> tool != ToolsState.INITIAL }
     val showColorsPopupFlow = toolsStateFlow.filter { tool -> tool == ToolsState.COLORS }
     val colorsButtonFlow = toolsStateFlow.filter { tool ->
         tool == ToolsState.WHITE || tool == ToolsState.RED || tool == ToolsState.BLACK || tool == ToolsState.BLUE
     }
 
-    private val frameList = mutableListOf(MainViewState(Color.BLUE, emptyList()))
+    private val frameList = mutableListOf(MainViewState(initialColor, emptyList()))
 
     private val userActionFlow = MutableSharedFlow<UserAction>(
         extraBufferCapacity = 1,
@@ -89,10 +92,19 @@ class MainViewModel : ViewModel() {
         .filter { state -> state.isAnimating.not() }
         .shareIn(viewModelScope, SharingStarted.Eagerly, 1)
 
+    private val onShowFrameListClicked = Channel<Unit>()
+    val showFrameListFlow = onShowFrameListClicked.receiveAsFlow()
+        .onEach { _loadingFlow.emit(true) }
+        .map { getDisplayFrames() }
+        .onEach { _loadingFlow.emit(false) }
+
+    private val _loadingFlow = MutableStateFlow(false)
+    val loadingFlow: StateFlow<Boolean> = _loadingFlow
+
     private fun processDrawingAction(action: UserAction.DrawingAction): Flow<MainViewState> {
         val toolsState = toolsStateFlow.value
         val mode = when (toolsState) {
-            ToolsState.CLEARED, ToolsState.TOOLS -> return viewStateFlow
+            ToolsState.INITIAL, ToolsState.TOOLS -> return viewStateFlow
             ToolsState.ERASER -> PorterDuffXfermode(PorterDuff.Mode.CLEAR)
             else -> null
         }
@@ -189,8 +201,9 @@ class MainViewModel : ViewModel() {
     }
 
     private fun processFrameDeletionAction(): Flow<MainViewState> {
+        val oldState = viewStateFlow.value
         val newState = if (frameList.size == 1) {
-            frameList[FIRST_FRAME_POSITION] = MainViewState(Color.BLUE, emptyList())
+            frameList[FIRST_FRAME_POSITION] = oldState.copy(drawnPaths = emptyList())
             frameList.first()
         } else {
             frameList.removeAt(frameList.lastIndex)
@@ -200,17 +213,20 @@ class MainViewModel : ViewModel() {
         return flowOf(newState)
     }
 
-    private fun processFrameCreationAction(): Flow<MainViewState> {
+    private suspend fun processFrameCreationAction(): Flow<MainViewState> {
+        _loadingFlow.emit(true)
+
         val state = viewStateFlow.value
+        return withContext(Dispatchers.IO) {
+            val newState = state.copy(
+                previousDrawnPaths = state.drawnPaths.map { it.copy(alpha = PREVIOUS_FRAME_ALPHA) },
+                drawnPaths = emptyList()
+            )
 
-        val newState = state.copy(
-            previousDrawnPaths = state.drawnPaths.map { it.copy(alpha = PREVIOUS_FRAME_ALPHA) },
-            drawnPaths = emptyList()
-        ) // TODO("Think about it")
+            frameList.add(newState)
 
-        frameList.add(newState)
-
-        return flowOf(frameList.last())
+            flowOf(frameList.last()).onEach { _loadingFlow.emit(false) }
+        }
     }
 
     private fun processPlayAction(): Flow<MainViewState> {
@@ -234,6 +250,10 @@ class MainViewModel : ViewModel() {
         val oldState = viewStateFlow.value
         val newState = if (color != Color.TRANSPARENT) oldState.copy(color = color) else oldState
         return flowOf(newState)
+    }
+
+    private suspend fun getDisplayFrames(): List<String> = withContext(Dispatchers.IO) {
+        frameList.indices.map { position -> String.format(frameString, position + 1) }
     }
 
     fun onDrawingTouched(event: MotionEvent) {
@@ -272,7 +292,27 @@ class MainViewModel : ViewModel() {
         userActionFlow.tryEmit(UserAction.ColorAction(tool, color))
     }
 
-    fun getDisplayFrames(context: Context): List<String> {
-        return frameList.indices.map { position -> context.getString(R.string.frame_name, position + 1) }
+    fun onShowFrameListClicked() {
+        onShowFrameListClicked.trySend(Unit)
+    }
+
+    companion object {
+        private const val FIRST_FRAME_POSITION = 0
+        private const val AVAILABLE_TOUCHES_AMOUNT = 1
+        private const val PREVIOUS_FRAME_ALPHA = 100
+        private const val FRAME_DELAY = 500L
+
+        val INITIAL_COLOR_KEY = object : CreationExtras.Key<Int> {}
+        val FRAME_STRING_KEY = object : CreationExtras.Key<String> {}
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val initialColor = this[INITIAL_COLOR_KEY] as Int
+                val frameString = this[FRAME_STRING_KEY] as String
+                MainViewModel(
+                    initialColor = initialColor,
+                    frameString = frameString
+                )
+            }
+        }
     }
 }
