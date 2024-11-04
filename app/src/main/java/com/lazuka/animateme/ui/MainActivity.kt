@@ -13,6 +13,8 @@ import com.lazuka.animateme.R
 import com.lazuka.animateme.databinding.ActivityMainBinding
 import com.lazuka.animateme.databinding.PopupFrameListBinding
 import com.lazuka.animateme.ui.frame_list.FrameListPopupWindow
+import com.lazuka.animateme.ui.model.MainViewState
+import com.lazuka.animateme.ui.model.ToolsState
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -66,20 +68,19 @@ class MainActivity : AppCompatActivity() {
         ivStop.setOnClickListener {
             viewModel.onStopClicked()
         }
+
+        rgTabBar.setOnCheckedChangeListener { group, checkedId ->
+            when (checkedId) {
+                rbPencil.id -> viewModel.onToolsClicked(ToolsState.PENCIL)
+                rbEraser.id -> viewModel.onToolsClicked(ToolsState.ERASER)
+            }
+        }
     }
 
     private fun observeViewModel() = with(viewModel) {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                drawingStateFlow.collectLatest(binding.drawingView::setState)
-            }
-        }
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                editingButtonsInvisibleFlow.collectLatest { isInvisible ->
-                    binding.groupEditingButtons.isInvisible = isInvisible
-                }
+                viewStateFlow.collectLatest(::setState)
             }
         }
     }
@@ -90,5 +91,11 @@ class MainActivity : AppCompatActivity() {
         val popup = FrameListPopupWindow(binding, items)
         val margin = resources.getDimensionPixelSize(R.dimen.space)
         popup.showAsDropDown(this.binding.ivFrameList, 0, margin)
+    }
+
+    private fun setState(state: MainViewState) = with(binding) {
+        previousDrawingView.setDrawnPaths(state.previousDrawnPaths)
+        drawingView.setDrawnPaths(state.drawnPaths)
+        groupEditingButtons.isInvisible = state.isAnimating
     }
 }

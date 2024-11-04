@@ -3,14 +3,16 @@ package com.lazuka.animateme.ui
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Path
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
 import android.view.MotionEvent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lazuka.animateme.R
 import com.lazuka.animateme.ui.model.DrawnPath
-import com.lazuka.animateme.ui.model.Frame
-import com.lazuka.animateme.ui.model.DrawingViewState
-import com.lazuka.animateme.ui.model.ViewAction
+import com.lazuka.animateme.ui.model.MainViewState
+import com.lazuka.animateme.ui.model.ToolsState
+import com.lazuka.animateme.ui.model.UserAction
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
@@ -19,7 +21,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
@@ -35,165 +37,170 @@ class MainViewModel : ViewModel() {
         private const val FIRST_FRAME_POSITION = 0
         private const val AVAILABLE_TOUCHES_AMOUNT = 1
         private const val PREVIOUS_FRAME_ALPHA = 100
-        private const val FRAME_DELAY = 100L
+        private const val FRAME_DELAY = 500L
     }
 
-    private val frameList = mutableListOf(Frame(emptyList()))
+    private val toolsStateFlow = MutableStateFlow(ToolsState.CLEARED)
 
-    private val viewActionFlow = MutableSharedFlow<ViewAction>(
+    private val frameList = mutableListOf(MainViewState(Color.BLUE, emptyList()))
+
+    private val userActionFlow = MutableSharedFlow<UserAction>(
         extraBufferCapacity = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val drawingStateFlow: StateFlow<DrawingViewState> = viewActionFlow
+    val viewStateFlow: StateFlow<MainViewState> = userActionFlow
         .flatMapLatest { action ->
             when (action) {
-                is ViewAction.DrawingAction -> processDrawingAction(action)
-                is ViewAction.UndoAction -> processUndoAction()
-                is ViewAction.RestoreAction -> processRestoreAction()
-                is ViewAction.FrameDeletionAction -> processFrameDeletionAction()
-                is ViewAction.FrameCreationAction -> processFrameCreationAction()
-                is ViewAction.PlayAction -> processPlayAction()
-                is ViewAction.StopAction -> processStopAction()
+                is UserAction.DrawingAction -> processDrawingAction(action)
+                is UserAction.UndoAction -> processUndoAction()
+                is UserAction.RestoreAction -> processRestoreAction()
+                is UserAction.FrameDeletionAction -> processFrameDeletionAction()
+                is UserAction.FrameCreationAction -> processFrameCreationAction()
+                is UserAction.PlayAction -> processPlayAction()
+                is UserAction.StopAction -> processStopAction()
             }
         }
-        .onEach { state ->
-            if (state is DrawingViewState.Editing) frameList[state.currentPosition] = state.frame
-            _editingButtonsInvisibleFlow.emit(state is DrawingViewState.Display)
+        .onEach { state -> if (!state.isAnimating) frameList[frameList.lastIndex] = state }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), frameList.first())
+
+    private val drawnPathHistory = userActionFlow
+        .filter { action -> action is UserAction.DrawingAction }
+        .map { viewStateFlow.value }
+        .filterIsInstance<MainViewState>()
+        .map { state -> state.drawnPaths }
+        .shareIn(viewModelScope, SharingStarted.Eagerly, 1)
+
+    private val lastEditingState = viewStateFlow
+        .filter { state -> state.isAnimating.not() }
+        .shareIn(viewModelScope, SharingStarted.Eagerly, 1)
+
+    private fun processDrawingAction(action: UserAction.DrawingAction): Flow<MainViewState> {
+        val toolsState = toolsStateFlow.value
+        val mode = when (toolsState) {
+            ToolsState.PENCIL -> null
+            ToolsState.ERASER -> PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+            ToolsState.CLEARED -> return viewStateFlow
         }
-        .stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(),
-            DrawingViewState.Editing(frameList.first(), Color.BLUE, FIRST_FRAME_POSITION)
-        )
 
-    private val drawnPathHistory = viewActionFlow
-        .filterIsInstance<ViewAction.DrawingAction>()
-        .map { drawingStateFlow.value }
-        .filterIsInstance<DrawingViewState.Editing>()
-        .map { state -> state.frame.drawnPaths }
-        .shareIn(viewModelScope, SharingStarted.Eagerly, 1)
-
-    private val lastEditingState = drawingStateFlow
-        .filterIsInstance<DrawingViewState.Editing>()
-        .shareIn(viewModelScope, SharingStarted.Eagerly, 1)
-
-    private val _editingButtonsInvisibleFlow = MutableStateFlow(false)
-    val editingButtonsInvisibleFlow: StateFlow<Boolean> = _editingButtonsInvisibleFlow
-
-    private fun processDrawingAction(action: ViewAction.DrawingAction): Flow<DrawingViewState> {
         val event = action.event
-        if (event.pointerCount > AVAILABLE_TOUCHES_AMOUNT) return drawingStateFlow
-        val currentState = drawingStateFlow.value as DrawingViewState.Editing
+        if (event.pointerCount > AVAILABLE_TOUCHES_AMOUNT) return viewStateFlow
 
+        val currentState = viewStateFlow.value
         val x = event.x
         val y = event.y
 
-        val actions = currentState.frame.drawnPaths.toMutableList()
         return when (event.action) {
             MotionEvent.ACTION_DOWN -> {
+                val actions = currentState.drawnPaths.toMutableList()
                 val path = Path()
                 path.moveTo(x, y)
-                actions.add(DrawnPath(path, currentState.color))
-                flowOf(currentState.copy(actions))
+
+                actions.add(
+                    DrawnPath(
+                        path = path,
+                        color = currentState.color,
+                        xfermode = mode
+                    )
+                )
+                flowOf(currentState.copy(drawnPaths = actions))
             }
 
             MotionEvent.ACTION_MOVE -> {
+                val actions = currentState.drawnPaths.toMutableList()
                 val lastAction = actions.last()
                 val lastPath = lastAction.path
                 lastPath.lineTo(x, y)
                 val modifiedAction = lastAction.copy(path = lastPath)
                 actions[actions.lastIndex] = modifiedAction
-                flowOf(currentState.copy(actions))
+                flowOf(currentState.copy(drawnPaths = actions))
             }
 
-            else -> drawingStateFlow
+            else -> viewStateFlow
         }
     }
 
-    private fun processUndoAction(): Flow<DrawingViewState> {
-        val state = drawingStateFlow.value as DrawingViewState.Editing
-        val drawnPath = state.frame.drawnPaths.toMutableList()
+    private fun processUndoAction(): Flow<MainViewState> {
+        val state = viewStateFlow.value
+        val drawnPath = state.drawnPaths.toMutableList()
         if (drawnPath.isNotEmpty()) drawnPath.removeAt(drawnPath.lastIndex)
-        return flowOf(state.copy(drawnPath))
+
+        return flowOf(state.copy(drawnPaths = drawnPath))
     }
 
-    private fun processRestoreAction(): Flow<DrawingViewState> {
+    private fun processRestoreAction(): Flow<MainViewState> {
         return drawnPathHistory.map { pathHistory ->
-            val state = drawingStateFlow.value as DrawingViewState.Editing
-            val drawnPath = state.frame.drawnPaths.toMutableList()
+            val state = viewStateFlow.value
+            val drawnPath = state.drawnPaths.toMutableList()
             val restoredIndex = drawnPath.lastIndex + 1
             if (restoredIndex < pathHistory.size) {
                 drawnPath.add(pathHistory[restoredIndex])
             }
 
-            state.copy(drawnPath)
+            state.copy(drawnPaths = drawnPath)
         }
     }
 
-    private fun processFrameDeletionAction(): Flow<DrawingViewState> {
-        val state = drawingStateFlow.value as DrawingViewState.Editing
-        val position = state.currentPosition - 1
-
-        val resultState = if (frameList.size == 1) {
-            frameList[FIRST_FRAME_POSITION] = Frame(emptyList())
-            state.copy(frame = frameList.first(), currentPosition = FIRST_FRAME_POSITION)
+    private fun processFrameDeletionAction(): Flow<MainViewState> {
+        val newState = if (frameList.size == 1) {
+            frameList[FIRST_FRAME_POSITION] = MainViewState(Color.BLUE, emptyList())
+            frameList.first()
         } else {
             frameList.removeAt(frameList.lastIndex)
-            state.copy(frame = frameList.last(), currentPosition = position)
+            frameList.last()
         }
 
-        return flowOf(resultState)
+        return flowOf(newState)
     }
 
-    private fun processFrameCreationAction(): Flow<DrawingViewState> {
-        val state = drawingStateFlow.value as DrawingViewState.Editing
-        val prevFrame = state.frame
-        val frame = Frame(prevFrame.drawnPaths.map { it.copy(alpha = PREVIOUS_FRAME_ALPHA) }) // TODO("Think about it")
-        val newPosition = state.currentPosition + 1
-        if (newPosition < frameList.lastIndex) {
-            frameList.add(newPosition, frame)
-        } else {
-            frameList.add(frame)
-        }
+    private fun processFrameCreationAction(): Flow<MainViewState> {
+        val state = viewStateFlow.value
 
-        return flowOf(state.copy(frame = frameList.last(), currentPosition = newPosition))
+        val newState = state.copy(
+            previousDrawnPaths = state.drawnPaths.map { it.copy(alpha = PREVIOUS_FRAME_ALPHA) },
+            drawnPaths = emptyList()
+        ) // TODO("Think about it")
+
+        frameList.add(newState)
+
+        return flowOf(frameList.last())
     }
 
-    private fun processPlayAction(): Flow<DrawingViewState> {
+    private fun processPlayAction(): Flow<MainViewState> {
+        var index = 0
         return flow {
-            frameList.forEach { frame ->
-                emit(DrawingViewState.Display(frame.drawnPaths))
+            while (index <= frameList.lastIndex) {
+                val state = frameList[index]
+                emit(state.copy(previousDrawnPaths = emptyList(), isAnimating = true))
                 delay(FRAME_DELAY)
+                if (index == frameList.lastIndex) index = 0 else index++
             }
-
-            emitAll(lastEditingState)
         }
     }
 
-    private fun processStopAction(): Flow<DrawingViewState> {
+    private fun processStopAction(): Flow<MainViewState> {
         return lastEditingState
     }
 
     fun onDrawingTouched(event: MotionEvent) {
-        viewActionFlow.tryEmit(ViewAction.DrawingAction(event))
+        userActionFlow.tryEmit(UserAction.DrawingAction(event))
     }
 
     fun onUndoClicked() {
-        viewActionFlow.tryEmit(ViewAction.UndoAction)
+        userActionFlow.tryEmit(UserAction.UndoAction)
     }
 
     fun onRestoreClicked() {
-        viewActionFlow.tryEmit(ViewAction.RestoreAction)
+        userActionFlow.tryEmit(UserAction.RestoreAction)
     }
 
     fun onDeleteFrameClicked() {
-        viewActionFlow.tryEmit(ViewAction.FrameDeletionAction)
+        userActionFlow.tryEmit(UserAction.FrameDeletionAction)
     }
 
     fun onCreateFrameClicked() {
-        viewActionFlow.tryEmit(ViewAction.FrameCreationAction)
+        userActionFlow.tryEmit(UserAction.FrameCreationAction)
     }
 
     fun getDisplayFrames(context: Context): List<String> {
@@ -201,10 +208,14 @@ class MainViewModel : ViewModel() {
     }
 
     fun onPlayClicked() {
-        viewActionFlow.tryEmit(ViewAction.PlayAction)
+        userActionFlow.tryEmit(UserAction.PlayAction)
     }
 
     fun onStopClicked() {
-        viewActionFlow.tryEmit(ViewAction.StopAction)
+        userActionFlow.tryEmit(UserAction.StopAction)
+    }
+
+    fun onToolsClicked(tool: ToolsState) {
+        toolsStateFlow.tryEmit(tool)
     }
 }
