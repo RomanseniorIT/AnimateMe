@@ -19,7 +19,8 @@
         android:src="@drawable/ic_arrow_left"
         app:layout_constraintBottom_toBottomOf="@id/ivRestore"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/ivRestore" />
+        app:layout_constraintTop_toTopOf="@id/ivRestore"
+        app:tint="@color/enabled_button_color" />
 
     <ImageView
         android:id="@+id/ivRestore"
@@ -30,7 +31,8 @@
         android:src="@drawable/ic_arrow_right"
         app:layout_constraintBottom_toBottomOf="@id/ivDeleteFrame"
         app:layout_constraintStart_toEndOf="@id/ivUndo"
-        app:layout_constraintTop_toTopOf="@id/ivDeleteFrame" />
+        app:layout_constraintTop_toTopOf="@id/ivDeleteFrame"
+        app:tint="@color/enabled_button_color" />
 
     <ImageView
         android:id="@+id/ivDeleteFrame"
@@ -72,7 +74,8 @@
         android:contentDescription="@string/stop"
         android:src="@drawable/ic_stop"
         app:layout_constraintEnd_toStartOf="@id/ivPlay"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/enabled_button_color" />
 
     <ImageView
         android:id="@+id/ivPlay"
@@ -82,7 +85,8 @@
         android:contentDescription="@string/play"
         android:src="@drawable/ic_play"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/enabled_button_color" />
 
     <com.lazuka.animateme.view.DrawingView
         android:id="@+id/previousDrawingView"

@@ -152,6 +152,10 @@ class MainActivity : AppCompatActivity() {
         previousDrawingView.setDrawnPaths(state.previousDrawnPaths)
         drawingView.setDrawnPaths(state.drawnPaths)
         groupEditingButtons.isInvisible = state.isAnimating
+        ivUndo.isEnabled = state.isUndoEnabled
+        ivRestore.isEnabled = state.isRestoreEnabled
+        ivStop.isEnabled = state.isStopEnabled
+        ivPlay.isEnabled = state.isPlayEnabled
     }
 
     private fun showFrameListPopup(items: List<String>) {
