@@ -1,4 +1,4 @@
-package com.lazuka.animateme.ui.model
+package com.lazuka.animateme.model
 
 import android.graphics.Path
 import android.graphics.PorterDuffXfermode
@@ -9,7 +9,9 @@ data class DrawnPath(
     @ColorInt
     val color: Int,
     val alpha: Int = 255,
-    val xfermode: PorterDuffXfermode? = null
+    val xfermode: PorterDuffXfermode? = null,
+    val startX: Float,
+    val startY: Float
 ) {
 
     // This is necessary for equals to work correctly with Path

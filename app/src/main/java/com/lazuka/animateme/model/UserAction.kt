@@ -1,6 +1,7 @@
-package com.lazuka.animateme.ui.model
+package com.lazuka.animateme.model
 
 import android.view.MotionEvent
+import androidx.annotation.ColorInt
 
 sealed interface UserAction {
 
@@ -17,4 +18,6 @@ sealed interface UserAction {
     data object PlayAction : UserAction
 
     data object StopAction : UserAction
+
+    data class ColorAction(val tool: ToolsState, @ColorInt val color: Int) : UserAction
 }

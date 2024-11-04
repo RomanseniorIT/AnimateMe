@@ -9,7 +9,7 @@
     android:background="@color/black"
     android:paddingHorizontal="@dimen/space"
     android:paddingTop="@dimen/space"
-    tools:context=".ui.MainActivity">
+    tools:context=".MainActivity">
 
     <ImageView
         android:id="@+id/ivUndo"
@@ -83,7 +83,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.lazuka.animateme.ui.DrawingView
+    <com.lazuka.animateme.view.DrawingView
         android:id="@+id/previousDrawingView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -93,7 +93,7 @@
         app:layout_constraintBottom_toTopOf="@id/rgTabBar"
         app:layout_constraintTop_toBottomOf="@id/ivPlay" />
 
-    <com.lazuka.animateme.ui.DrawingView
+    <com.lazuka.animateme.view.DrawingView
         android:id="@+id/drawingView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -148,8 +148,8 @@
 
         <RadioButton
             android:id="@+id/rbColor"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="@dimen/color_icon_size"
+            android:layout_height="@dimen/color_icon_size"
             android:layout_marginHorizontal="@dimen/space_half"
             android:background="@drawable/ic_blue_color"
             android:button="@null"
