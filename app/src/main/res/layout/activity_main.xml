@@ -7,13 +7,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/black"
-    android:padding="@dimen/space"
+    android:paddingVertical="@dimen/space"
     tools:context=".MainActivity">
 
     <ImageView
         android:id="@+id/ivUndo"
         android:layout_width="24dp"
         android:layout_height="24dp"
+        android:layout_marginStart="@dimen/space"
         android:contentDescription="@string/undo_last_action"
         android:src="@drawable/ic_arrow_left"
         app:layout_constraintBottom_toBottomOf="@id/ivRestore"
@@ -77,6 +78,7 @@
         android:id="@+id/ivPlay"
         android:layout_width="32dp"
         android:layout_height="32dp"
+        android:layout_marginEnd="@dimen/space"
         android:contentDescription="@string/play"
         android:src="@drawable/ic_play"
         app:layout_constraintEnd_toEndOf="parent"
@@ -86,8 +88,8 @@
         android:id="@+id/previousDrawingView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="@dimen/space_double"
-        android:layout_marginBottom="@dimen/space_22"
+        android:layout_marginTop="@dimen/space"
+        android:layout_marginBottom="@dimen/space_6"
         android:background="@drawable/ic_paper"
         app:layout_constraintBottom_toTopOf="@id/rgTabBar"
         app:layout_constraintTop_toBottomOf="@id/ivPlay" />
@@ -96,8 +98,8 @@
         android:id="@+id/drawingView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="@dimen/space_double"
-        android:layout_marginBottom="@dimen/space_22"
+        android:layout_marginTop="@dimen/space"
+        android:layout_marginBottom="@dimen/space_6"
         app:layout_constraintBottom_toTopOf="@id/rgTabBar"
         app:layout_constraintTop_toBottomOf="@id/ivPlay" />
 
@@ -107,6 +109,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/space"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <RadioButton
