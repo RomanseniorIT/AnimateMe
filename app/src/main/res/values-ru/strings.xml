@@ -5,7 +5,9 @@
     <string name="restore_last_action">Восстановить действие</string>
     <string name="undo_last_action">Отменить действие</string>
     <string name="delete_frame">Удалить кадр</string>
+    <string name="delete_all_frames">Удалить все кадры</string>
     <string name="create_frame">Создать кадр</string>
+    <string name="copy_frame">Копировать кадр</string>
     <string name="show_frame_list">Отобразить список кадров</string>
     <string name="stop">Стоп</string>
     <string name="play">Старт</string>

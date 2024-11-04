@@ -11,6 +11,7 @@
     <color name="red">#FF3D00</color>
 
     <color name="selected_color">#A8DB10</color>
+    <color name="disabled_color">#8B8B8B</color>
     <color name="popup_border_color">#29555454</color>
     <color name="popup_background_color">#7D000000</color>
 </resources>

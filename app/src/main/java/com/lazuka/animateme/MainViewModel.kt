@@ -76,6 +76,8 @@ class MainViewModel(
                 is UserAction.PlayAction -> processPlayAction()
                 is UserAction.StopAction -> processStopAction()
                 is UserAction.ColorAction -> processColorAction(action.color, action.tool)
+                is UserAction.FrameCopyAction -> processFrameCopyAction()
+                is UserAction.AllFramesDeletion -> processAllFramesDeletionAction()
             }
         }
         .onEach { state -> if (!state.isAnimating) frameList[frameList.lastIndex] = state }
@@ -135,7 +137,7 @@ class MainViewModel(
                         startY = y
                     )
                 )
-                flowOf(currentState.copy(drawnPaths = actions))
+                flowOf(currentState.copy(drawnPaths = actions, isRestoreEnabled = false))
             }
 
             MotionEvent.ACTION_MOVE -> {
@@ -184,7 +186,7 @@ class MainViewModel(
         val drawnPath = state.drawnPaths.toMutableList()
         if (drawnPath.isNotEmpty()) drawnPath.removeAt(drawnPath.lastIndex)
 
-        return flowOf(state.copy(drawnPaths = drawnPath))
+        return flowOf(state.copy(drawnPaths = drawnPath, isRestoreEnabled = true))
     }
 
     private fun processRestoreAction(): Flow<MainViewState> {
@@ -192,18 +194,20 @@ class MainViewModel(
             val state = viewStateFlow.value
             val drawnPath = state.drawnPaths.toMutableList()
             val restoredIndex = drawnPath.lastIndex + 1
-            if (restoredIndex < pathHistory.size) {
+
+            val canRestore = restoredIndex < pathHistory.size
+            if (canRestore) {
                 drawnPath.add(pathHistory[restoredIndex])
             }
 
-            state.copy(drawnPaths = drawnPath)
+            state.copy(drawnPaths = drawnPath, isRestoreEnabled = drawnPath.size < pathHistory.size)
         }
     }
 
     private fun processFrameDeletionAction(): Flow<MainViewState> {
         val oldState = viewStateFlow.value
         val newState = if (frameList.size == 1) {
-            frameList[FIRST_FRAME_POSITION] = oldState.copy(drawnPaths = emptyList())
+            frameList[FIRST_FRAME_POSITION] = oldState.copy(drawnPaths = emptyList(), isPlayEnabled = false)
             frameList.first()
         } else {
             frameList.removeAt(frameList.lastIndex)
@@ -220,7 +224,8 @@ class MainViewModel(
         return withContext(Dispatchers.IO) {
             val newState = state.copy(
                 previousDrawnPaths = state.drawnPaths.map { it.copy(alpha = PREVIOUS_FRAME_ALPHA) },
-                drawnPaths = emptyList()
+                drawnPaths = emptyList(),
+                isPlayEnabled = true
             )
 
             frameList.add(newState)
@@ -234,7 +239,14 @@ class MainViewModel(
         return flow {
             while (index <= frameList.lastIndex) {
                 val state = frameList[index]
-                emit(state.copy(previousDrawnPaths = emptyList(), isAnimating = true))
+                emit(
+                    state.copy(
+                        previousDrawnPaths = emptyList(),
+                        isAnimating = true,
+                        isPlayEnabled = false,
+                        isStopEnabled = true
+                    )
+                )
                 delay(FRAME_DELAY)
                 if (index == frameList.lastIndex) index = 0 else index++
             }
@@ -250,6 +262,30 @@ class MainViewModel(
         val oldState = viewStateFlow.value
         val newState = if (color != Color.TRANSPARENT) oldState.copy(color = color) else oldState
         return flowOf(newState)
+    }
+
+    private suspend fun processFrameCopyAction(): Flow<MainViewState> {
+        _loadingFlow.emit(true)
+
+        val state = viewStateFlow.value
+        return withContext(Dispatchers.IO) {
+            val newState = state.copy(
+                previousDrawnPaths = state.drawnPaths.map { it.copy(alpha = PREVIOUS_FRAME_ALPHA) },
+                isPlayEnabled = true
+            )
+
+            frameList.add(newState)
+
+            flowOf(frameList.last()).onEach { _loadingFlow.emit(false) }
+        }
+    }
+
+    private fun processAllFramesDeletionAction(): Flow<MainViewState> {
+        val oldState = viewStateFlow.value
+        frameList.clear()
+        frameList.add(oldState.copy(previousDrawnPaths = emptyList(), drawnPaths = emptyList(), isPlayEnabled = false))
+
+        return flowOf(frameList.first())
     }
 
     private suspend fun getDisplayFrames(): List<String> = withContext(Dispatchers.IO) {
@@ -274,6 +310,14 @@ class MainViewModel(
 
     fun onCreateFrameClicked() {
         userActionFlow.tryEmit(UserAction.FrameCreationAction)
+    }
+
+    fun onCopyFrameClicked() {
+        userActionFlow.tryEmit(UserAction.FrameCopyAction)
+    }
+
+    fun onDeleteAllFramesClicked() {
+        userActionFlow.tryEmit(UserAction.AllFramesDeletion)
     }
 
     fun onPlayClicked() {

@@ -68,12 +68,20 @@ class MainActivity : AppCompatActivity() {
             viewModel.onRestoreClicked()
         }
 
+        ivDeleteAll.setOnClickListener {
+            viewModel.onDeleteAllFramesClicked()
+        }
+
         ivDeleteFrame.setOnClickListener {
             viewModel.onDeleteFrameClicked()
         }
 
         ivCreateFrame.setOnClickListener {
             viewModel.onCreateFrameClicked()
+        }
+
+        ivCopyFrame.setOnClickListener {
+            viewModel.onCopyFrameClicked()
         }
 
         ivFrameList.setOnClickListener {
@@ -152,6 +160,10 @@ class MainActivity : AppCompatActivity() {
         previousDrawingView.setDrawnPaths(state.previousDrawnPaths)
         drawingView.setDrawnPaths(state.drawnPaths)
         groupEditingButtons.isInvisible = state.isAnimating
+        ivUndo.isEnabled = state.isUndoEnabled
+        ivRestore.isEnabled = state.isRestoreEnabled
+        ivStop.isEnabled = state.isStopEnabled
+        ivPlay.isEnabled = state.isPlayEnabled
     }
 
     private fun showFrameListPopup(items: List<String>) {
