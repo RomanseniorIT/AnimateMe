@@ -2,7 +2,6 @@ package com.lazuka.animateme
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
@@ -78,7 +77,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         rgTabBar.setOnCheckedChangeListener { _, checkedId ->
-            Log.i("MyTag", checkedId.toString())
             when (checkedId) {
                 rbPencil.id -> viewModel.onToolsClicked(ToolsState.PENCIL)
                 rbEraser.id -> viewModel.onToolsClicked(ToolsState.ERASER)
