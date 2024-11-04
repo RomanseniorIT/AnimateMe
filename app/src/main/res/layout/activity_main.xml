@@ -84,12 +84,21 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.lazuka.animateme.ui.DrawingView
-        android:id="@+id/drawingView"
+        android:id="@+id/previousDrawingView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/space_double"
         android:layout_marginBottom="@dimen/space_22"
         android:background="@drawable/ic_paper"
+        app:layout_constraintBottom_toTopOf="@id/rgTabBar"
+        app:layout_constraintTop_toBottomOf="@id/ivPlay" />
+
+    <com.lazuka.animateme.ui.DrawingView
+        android:id="@+id/drawingView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/space_double"
+        android:layout_marginBottom="@dimen/space_22"
         app:layout_constraintBottom_toTopOf="@id/rgTabBar"
         app:layout_constraintTop_toBottomOf="@id/ivPlay" />
 

@@ -6,7 +6,6 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
 import com.lazuka.animateme.ui.model.DrawnPath
-import com.lazuka.animateme.ui.model.DrawingViewState
 
 class DrawingView @JvmOverloads constructor(
     context: Context,
@@ -19,32 +18,29 @@ class DrawingView @JvmOverloads constructor(
 
     init {
         brush.isAntiAlias = true
+        brush.isDither = true
         brush.style = Paint.Style.STROKE
         brush.strokeJoin = Paint.Join.ROUND
-        brush.strokeWidth = 8f
+        brush.strokeCap = Paint.Cap.ROUND
+        brush.strokeWidth = 16f
     }
 
     override fun onDraw(canvas: Canvas) {
-        drawnPathList.forEach { (path, color, alpha) ->
+        val layerId = canvas.saveLayer(0f, 0f, width.toFloat(), height.toFloat(), null)
+
+        drawnPathList.forEach { (path, color, alpha, mode) ->
             brush.color = color
             brush.alpha = alpha
+            brush.setXfermode(mode)
             canvas.drawPath(path, brush)
         }
+
+        canvas.restoreToCount(layerId)
     }
 
-    fun setState(state: DrawingViewState) {
-        when (state) {
-            is DrawingViewState.Editing -> {
-                drawnPathList.clear()
-                drawnPathList.addAll(state.frame.drawnPaths)
-                drawnPathList.addAll(state.frame.previousDrawnPaths)
-            }
-
-            is DrawingViewState.Display -> {
-                drawnPathList.clear()
-                drawnPathList.addAll(state.drawnPaths)
-            }
-        }
+    fun setDrawnPaths(drawnPath: List<DrawnPath>) {
+        drawnPathList.clear()
+        drawnPathList.addAll(drawnPath)
         invalidate()
     }
 }
