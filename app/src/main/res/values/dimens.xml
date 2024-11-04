@@ -3,11 +3,13 @@
     <dimen name="space">16dp</dimen>
     <dimen name="space_quarter">4dp</dimen>
     <dimen name="space_half">8dp</dimen>
-    <dimen name="space_22">22dp</dimen>
+    <dimen name="space_6">6dp</dimen>
     <dimen name="space_and_half">24dp</dimen>
     <dimen name="space_double">32dp</dimen>
 
     <dimen name="popup_corner_radius">4dp</dimen>
+    <dimen name="drawing_view_radius">30dp</dimen>
+    <dimen name="cut_brush_size">20dp</dimen>
     <dimen name="popup_icons_size">24dp</dimen>
     <dimen name="color_icon_size">28dp</dimen>
 
