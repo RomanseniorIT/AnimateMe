@@ -7,6 +7,7 @@ data class MainViewState(
     val color: Int,
     val previousDrawnPaths: List<DrawnPath>,
     val drawnPaths: List<DrawnPath> = emptyList(),
+    val allDrawnPath: List<DrawnPath> = emptyList(),
     val isAnimating: Boolean = false,
     val isRestoreEnabled: Boolean = false,
     val isStopEnabled: Boolean = false,

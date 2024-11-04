@@ -183,7 +183,7 @@
         android:id="@+id/groupEditingButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="ivUndo, ivRestore, ivDeleteFrame, ivCreateFrame, ivFrameList, rgTabBar, ivCopyFrame" />
+        app:constraint_referenced_ids="ivUndo, ivRestore, ivDeleteFrame, ivCreateFrame, ivFrameList, rgTabBar, ivCopyFrame, ivDeleteAll" />
 
     <FrameLayout
         android:id="@+id/progressBar"

@@ -83,13 +83,6 @@ class MainViewModel(
         .onEach { state -> if (!state.isAnimating) frameList[frameList.lastIndex] = state }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), frameList.first())
 
-    private val drawnPathHistory = userActionFlow
-        .filter { action -> action is UserAction.DrawingAction }
-        .map { viewStateFlow.value }
-        .filterIsInstance<MainViewState>()
-        .map { state -> state.drawnPaths }
-        .shareIn(viewModelScope, SharingStarted.Eagerly, 1)
-
     private val lastEditingState = viewStateFlow
         .filter { state -> state.isAnimating.not() }
         .shareIn(viewModelScope, SharingStarted.Eagerly, 1)
@@ -137,7 +130,7 @@ class MainViewModel(
                         startY = y
                     )
                 )
-                flowOf(currentState.copy(drawnPaths = actions, isRestoreEnabled = false))
+                flowOf(currentState.copy(drawnPaths = actions, allDrawnPath = actions, isRestoreEnabled = false))
             }
 
             MotionEvent.ACTION_MOVE -> {
@@ -190,18 +183,17 @@ class MainViewModel(
     }
 
     private fun processRestoreAction(): Flow<MainViewState> {
-        return drawnPathHistory.map { pathHistory ->
-            val state = viewStateFlow.value
-            val drawnPath = state.drawnPaths.toMutableList()
-            val restoredIndex = drawnPath.lastIndex + 1
+        val state = viewStateFlow.value
+        val drawnPath = state.drawnPaths.toMutableList()
+        val allPath = state.allDrawnPath
+        val restoredIndex = drawnPath.lastIndex + 1
 
-            val canRestore = restoredIndex < pathHistory.size
-            if (canRestore) {
-                drawnPath.add(pathHistory[restoredIndex])
-            }
-
-            state.copy(drawnPaths = drawnPath, isRestoreEnabled = drawnPath.size < pathHistory.size)
+        val canRestore = restoredIndex < allPath.size
+        if (canRestore) {
+            drawnPath.add(allPath[restoredIndex])
         }
+
+        return flowOf(state.copy(drawnPaths = drawnPath, isRestoreEnabled = drawnPath.size < allPath.size))
     }
 
     private fun processFrameDeletionAction(): Flow<MainViewState> {
@@ -213,8 +205,9 @@ class MainViewModel(
             frameList.removeAt(frameList.lastIndex)
             frameList.last()
         }
+        val resultState = newState.copy(color = oldState.color)
 
-        return flowOf(newState)
+        return flowOf(resultState)
     }
 
     private suspend fun processFrameCreationAction(): Flow<MainViewState> {
